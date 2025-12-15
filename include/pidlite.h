@@ -16,7 +16,7 @@ use float instead of double
 /*
 Config struct for pid lib
 */
-struct pidLite_Config {
+struct pidL_Config {
   // Setpoint and process value
   pidL_t SP, PV;
   // Proportinal, integral, derivative terms
@@ -27,28 +27,29 @@ struct pidLite_Config {
   const pidL_t Pgain, Igain;
 };
 /*
-Update SP at target PID
+Update SP at tarGet PID
 */
-void pidLite_setSP(struct pidLite_Config *PID, pidL_t new_SP);
+void pidL_SetSP(struct pidL_Config *PID, pidL_t new_SP);
 /*
-Update PV at target PID
+Update PV at tarGet PID
 */
-void pidLite_setPV(struct pidLite_Config *PID, pidL_t new_PV);
+void pidL_SetPV(struct pidL_Config *PID, pidL_t new_PV);
 /*
 Calculate error
 */
-pidL_t pidLite_getError(struct pidLite_Config *PID);
+pidL_t pidL_GetError(struct pidL_Config *PID);
 /*
 Calculate P term
 */
-void pidLite_getP(struct pidLite_Config *PID, pidL_t error);
+void pidL_GetP(struct pidL_Config *PID, pidL_t error);
 /*
 Calculate I term
 */
-void pidLite_getI(struct pidLite_Config *PID, pidL_t error);
+void pidL_GetI(struct pidL_Config *PID, pidL_t error);
 /*
-Update target pid
+Update tarGet pid
 */
-void pidLite_update(struct pidLite_Config *PID);
+void pidL_Update(struct pidL_Config *PID);
 //
+pidL_t pidL_Compute();
 #endif

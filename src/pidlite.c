@@ -1,31 +1,31 @@
 #include "pidlite.h"
 /*
-Update SP for target PID
+Update SP for tarGet PID
 */
-void pidLite_setSP(struct pidLite_Config *PID, pidL_t new_SP)
+void pidL_SetSP(struct pidL_Config *PID, pidL_t new_SP)
 {
-  // Store input value at target PID SP
+  // Store input value at tarGet PID SP
   PID->SP = new_SP;
 }
 /*
-Update PV for target PID
+Update PV for tarGet PID
 */
-void pidLite_setPV(struct pidLite_Config *PID, pidL_t new_PV)
+void pidL_SetPV(struct pidL_Config *PID, pidL_t new_PV)
 {
-  // Store input value at target PID PV
+  // Store input value at tarGet PID PV
   PID->PV = new_PV;
 }
 /*
 Calculate error
 */
-pidL_t pidLite_getError(struct pidLite_Config *PID)
+pidL_t pidL_GetError(struct pidL_Config *PID)
 {
   return (PID->SP - PID->PV);
 }
 /*
 Calculate P term
 */
-void pidLite_getP(struct pidLite_Config *PID, pidL_t error)
+void pidL_GetP(struct pidL_Config *PID, pidL_t error)
 {
   // Multiply defined P_GAIN by most recent error
   PID->Pval = (PID->Pgain * error);
@@ -33,21 +33,21 @@ void pidLite_getP(struct pidLite_Config *PID, pidL_t error)
 /*
 Calculate I term
 */
-void pidLite_getI(struct pidLite_Config *PID, pidL_t error)
+void pidL_GetI(struct pidL_Config *PID, pidL_t error)
 {
   // Multiply I_GAIN by new error and add to moving sum
   PID->Ival += (PID->Igain * error);
 }
 /*
-Update target pid
+Update target pidL
 */
-void pidLite_update(struct pidLite_Config *PID) {
+void pidL_Update(struct pidL_Config *PID) {
   // Find error
-  pidL_t new_error = pidLite_getError(PID);
+  pidL_t new_error = pidL_GetError(PID);
   // Calculate P term
-  pidLite_getP(PID, new_error);
+  pidL_GetP(PID, new_error);
   // Calculate I term
-  pidLite_getI(PID, new_error);
-  // Sum terms and update output
+  pidL_GetI(PID, new_error);
+  // Sum terms and Update output
   PID->CV = PID->Pval + PID->Ival;
 }

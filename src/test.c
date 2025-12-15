@@ -4,7 +4,7 @@
 #define OUTPUT_FACTOR 0.10
 
 int main(void) {
-  struct pidLite_Config PID = {
+  struct pidL_Config PID = {
     .PV = 0.0,
     .SP = 50.0,
     .Pval = 0.0,
@@ -15,7 +15,7 @@ int main(void) {
   }; 
   int i = 0;
   for (i = 0; i < 50; i++) {
-    pidLite_update(&PID);
+    pidL_Update(&PID);
     if (i % 2) {
       PID.PV += 1.5;
     }
