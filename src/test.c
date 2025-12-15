@@ -7,11 +7,10 @@ int main(void) {
   struct pidL_Config PID = {
     .PV = 0.0,
     .SP = 50.0,
-    .Pval = 0.0,
-    .Ival = 0.0,
     .CV = 0.0,
-    .Pgain = 10.0,
-    .Igain = 2.0
+    .ScaleMax = 200.0,
+    .PGain = 10.0,
+    .IGain = 2.0
   }; 
   int i = 0;
   for (i = 0; i < 50; i++) {

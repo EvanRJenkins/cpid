@@ -1,4 +1,5 @@
 #include "pidlite.h"
+#include <math.h>
 /*
 Update SP for tarGet PID
 */
@@ -28,7 +29,7 @@ Calculate P term
 void pidL_GetP(struct pidL_Config *PID, pidL_t error)
 {
   // Multiply defined P_GAIN by most recent error
-  PID->Pval = (PID->Pgain * error);
+  PID->PTerm = (PID->PGain * error);
 }
 /*
 Calculate I term
@@ -36,7 +37,7 @@ Calculate I term
 void pidL_GetI(struct pidL_Config *PID, pidL_t error)
 {
   // Multiply I_GAIN by new error and add to moving sum
-  PID->Ival += (PID->Igain * error);
+  PID->ITerm += (PID->IGain * error);
 }
 /*
 Update target pidL
@@ -49,5 +50,28 @@ void pidL_Update(struct pidL_Config *PID) {
   // Calculate I term
   pidL_GetI(PID, new_error);
   // Sum terms and Update output
-  PID->CV = PID->Pval + PID->Ival;
+  PID->CV = PID->PTerm + PID->ITerm;
+}
+/*
+Convert target pidL CV to relevant range
+*/
+pidL_t pidL_Compute(struct pidL_Config *PID)
+{
+  pidL_t result = 0.0;
+  // If outside scaling range
+  if (fabs(PID->CV) > PID->ScaleMax) {
+    // If negative
+    if (PID->CV < 0.0) {
+      result = -PID->ScaleMax;
+    }
+    // If positive
+    else {
+      result = PID->ScaleMax;
+    }
+  }
+  // If inside scaling range
+  else {
+    result = (PID->CV / PID->ScaleMax);
+  }
+  return result;
 }

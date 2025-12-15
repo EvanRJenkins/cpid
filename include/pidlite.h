@@ -19,12 +19,15 @@ Config struct for pid lib
 struct pidL_Config {
   // Setpoint and process value
   pidL_t SP, PV;
-  // Proportinal, integral, derivative terms
-  pidL_t Pval, Ival;
-  // Control Value (Mathematical output)
+  // Control variable (unscaled output)
   pidL_t CV;
-  // Gain factors
-  const pidL_t Pgain, Igain;
+  // CV scale bound
+  const pidL_t ScaleMax;
+  // Proportional and Integral gains
+  // NOTE: Consider removing const
+  const pidL_t PGain, IGain;
+  // Proportional and integral terms
+  pidL_t PTerm, ITerm;
 };
 /*
 Update SP at tarGet PID
@@ -51,5 +54,5 @@ Update tarGet pid
 */
 void pidL_Update(struct pidL_Config *PID);
 //
-pidL_t pidL_Compute();
+pidL_t pidL_Compute(struct pidL_Config *PID);
 #endif
