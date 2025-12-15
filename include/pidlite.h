@@ -4,6 +4,7 @@
 Configuration header
 */
 #include "config.h"
+#include <float.h>
 /*
 If USE_FLOAT defined in config.h,
 use float instead of double
@@ -14,6 +15,17 @@ use float instead of double
   typedef double pidL_t;
 #endif
 /*
+Constant definitions for math.
+Change at your own risk!
+*/
+#ifdef CENTERED
+  #define NORM_MIN -1000.0
+  #define NORM_MAX 1000.0
+#else
+  #define NORM_MIN 0.0
+  #define NORM_MAX 1000.0
+#endif 
+/*
 Config struct for pid lib
 */
 struct pidL_Config {
@@ -21,8 +33,6 @@ struct pidL_Config {
   pidL_t SP, PV;
   // Control variable (unscaled output)
   pidL_t CV;
-  // CV scale bound
-  const pidL_t ScaleMax;
   // Proportional and Integral gains
   // NOTE: Consider removing const
   const pidL_t PGain, IGain;

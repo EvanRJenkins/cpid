@@ -1,5 +1,7 @@
 #include "pidlite.h"
+#include <float.h>
 #include <math.h>
+#include <stdio.h>
 /*
 Update SP for tarGet PID
 */
@@ -49,29 +51,18 @@ void pidL_Update(struct pidL_Config *PID) {
   pidL_GetP(PID, new_error);
   // Calculate I term
   pidL_GetI(PID, new_error);
+  printf("P: %f     I: %f\n", PID->PTerm, PID->ITerm);
   // Sum terms and Update output
-  PID->CV = PID->PTerm + PID->ITerm;
-}
-/*
-Convert target pidL CV to relevant range
-*/
-pidL_t pidL_Compute(struct pidL_Config *PID)
-{
-  pidL_t result = 0.0;
-  // If outside scaling range
-  if (fabs(PID->CV) > PID->ScaleMax) {
-    // If negative
-    if (PID->CV < 0.0) {
-      result = -PID->ScaleMax;
-    }
-    // If positive
-    else {
-      result = PID->ScaleMax;
-    }
+  pidL_t sum = (PID->PTerm + PID->ITerm);
+  // Normalize sum
+  pidL_t norm = ((sum - NORM_MIN) / (NORM_MAX - NORM_MIN));
+  // Clip norm if outside of range
+  if (norm > NORM_MAX) {
+    norm = NORM_MAX; 
   }
-  // If inside scaling range
-  else {
-    result = (PID->CV / PID->ScaleMax);
+  else if (norm < NORM_MIN) {
+    norm = NORM_MIN;
   }
-  return result;
+  // Give normalized value to CV
+  PID->CV = norm;
 }

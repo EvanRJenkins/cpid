@@ -3,7 +3,7 @@
 /*
 USE THIS FILE TO SPECIFY DOUBLE OR FLOAT, etc.
 */
-
+#define CENTERED
 #define USE_FLOAT
 
 #endif  // CONFIG_H
