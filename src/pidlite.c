@@ -70,4 +70,9 @@ Adjust PV of target pidL
 void pidL_Adjust(struct pidL_Config *PID, pidL_t adjustment_factor)
 {
     PID->PV += PID->CV * adjustment_factor;
+Zero PTerm, ITerm
+*/
+void pidL_ClearTerms(struct pidL_Config * PID) {
+  PID->PTerm = 0.0;
+  PID->ITerm = 0.0;
 }
