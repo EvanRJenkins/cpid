@@ -18,9 +18,9 @@ use float instead of double
 Constant definitions for math.
 Change at your own risk!
 */
-#define SCALE_FACTOR 10000.0
-#define SCALE_MIN -0.5
-#define SCALE_MAX 0.5
+#define SCALE_FACTOR 10000.0f
+#define SCALE_MIN -0.5f
+#define SCALE_MAX 0.5f
 /*
 Config struct for pid lib
 */
@@ -60,5 +60,7 @@ Update tarGet pid
 */
 void pidL_Update(struct pidL_Config *PID);
 //
+void pidL_Adjust(struct pidL_Config *PID, pidL_t adjustment_factor);
+
 void pidL_ClearTerms(struct pidL_Config *PID);
 #endif

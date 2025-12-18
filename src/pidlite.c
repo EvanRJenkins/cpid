@@ -65,6 +65,11 @@ void pidL_Update(struct pidL_Config *PID) {
   PID->CV = scaled;
 }
 /*
+Adjust PV of target pidL
+*/
+void pidL_Adjust(struct pidL_Config *PID, pidL_t adjustment_factor)
+{
+    PID->PV += PID->CV * adjustment_factor;
 Zero PTerm, ITerm
 */
 void pidL_ClearTerms(struct pidL_Config * PID) {
