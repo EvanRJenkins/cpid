@@ -60,3 +60,6 @@ Makefile
 test.c
 test_pid
 demo_pid
+*.txt
+*.csv
+*.sh

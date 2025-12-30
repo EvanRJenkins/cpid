@@ -1,78 +1,115 @@
-#include "pidlite.h"
-#include <float.h>
-#include <math.h>
-#include <stdio.h>
+#include "cpid.h"
 /*
 Update SP for tarGet PID
 */
-void pidL_SetSP(struct pidL_Config *PID, pidL_t new_SP)
+void PID_SetSP(PID_Handle_t *PID, PID_t new_SP)
 {
-  // Store input value at tarGet PID SP
-  PID->SP = new_SP;
+    // Store input value at tarGet PID SP
+    PID->SP = new_SP;
 }
 /*
 Update PV for tarGet PID
 */
-void pidL_SetPV(struct pidL_Config *PID, pidL_t new_PV)
+void PID_SetPV(PID_Handle_t *PID, PID_t new_PV)
 {
-  // Store input value at tarGet PID PV
-  PID->PV = new_PV;
+    // Store input value at tarGet PID PV
+    PID->PV = new_PV;
 }
 /*
 Calculate error
 */
-pidL_t pidL_GetError(struct pidL_Config *PID)
+PID_t PID_GetError(PID_Handle_t *PID)
 {
-  return (PID->SP - PID->PV);
+    return (PID->SP - PID->PV);
 }
 /*
-Calculate P term
+Calculate P weight
 */
-void pidL_GetP(struct pidL_Config *PID, pidL_t error)
+void PID_GetPWeight(PID_Handle_t *PID, PID_t error)
 {
-  // Multiply defined P_GAIN by most recent error
-  PID->PTerm = (PID->PGain * error);
+    // Multiply defined P_GAIN by most recent error
+    PID->PWeight = (PID->PGain * error);
 }
 /*
-Calculate I term
+Calculate I weight
 */
-void pidL_GetI(struct pidL_Config *PID, pidL_t error)
+void PID_GetIWeight(PID_Handle_t *PID, PID_t error)
 {
-  // Multiply I_GAIN by new error and add to moving sum
-  PID->ITerm += (PID->IGain * error);
+    // Multiply I_GAIN by new error and add to moving sum
+    PID->IWeight += (PID->IGain * error);
 }
 /*
-Update target pidL
+Calculate D weight
 */
-void pidL_Update(struct pidL_Config *PID) {
-  // Find error
-  pidL_t new_error = pidL_GetError(PID);
-  // Calculate P term
-  pidL_GetP(PID, new_error);
-  // Calculate I term
-  pidL_GetI(PID, new_error);
-  // Sum terms and Update output
-  pidL_t sum = (PID->PTerm + PID->ITerm);
-  // Normalize sum
-  pidL_t scaled = (sum / SCALE_FACTOR);
-  if (scaled > SCALE_MAX) {
-    scaled = SCALE_MAX;
-  }
-  else if (scaled < SCALE_MIN) {
-    scaled = SCALE_MIN;
-  }
-  // Give scaled value to CV
-  PID->CV = scaled;
+void PID_GetDWeight(PID_Handle_t *PID, PID_t new_error) {
+    // Calculate the change in error (Current Error - Previous Error)
+    PID_t error_difference = new_error - PID->PreviousError;
+    // Multiply D Gain by the difference (slope)
+    PID->DWeight = (PID->DGain * error_difference);
 }
 /*
-Adjust PV of target pidL
+Update target PID
 */
-void pidL_Adjust(struct pidL_Config *PID, pidL_t adjustment_factor)
+#ifdef ENABLE_DERIVATIVE
+void PID_Update(PID_Handle_t *PID) {
+    // Find new error
+    PID_t new_error = PID_GetError(PID);
+    // Calculate P weight
+    PID_GetPWeight(PID, new_error);
+    // Calculate I weight
+    PID_GetIWeight(PID, new_error);
+    // Calculate D weight
+    PID_GetDWeight(PID, new_error);
+    // Move new error into previous_error
+    PID->PreviousError = new_error;
+    // Sum weights and Update output
+    PID_t sum = (PID->PWeight + PID->IWeight + PID->DWeight);
+    // Normalize sum
+    PID_t scaled = (sum / SCALE_FACTOR);
+    if (scaled > SCALE_MAX) {
+        scaled = SCALE_MAX;
+    }
+    else if (scaled < SCALE_MIN) {
+        scaled = SCALE_MIN;
+    }
+    // Give scaled value to CV
+    PID->CV = scaled;
+}
+// Alternate definition with no derivative term
+#else
+void PID_Update(PID_Handle_t *PID) {
+    // Find new error
+    PID_t new_error = PID_GetError(PID);
+    // Calculate P weight
+    PID_GetPWeight(PID, new_error);
+    // Calculate I weight
+    PID_GetIWeight(PID, new_error);
+    // Sum weights and Update output
+    PID_t sum = (PID->PWeight + PID->IWeight);
+    // Normalize sum
+    PID_t scaled = (sum / SCALE_FACTOR);
+    if (scaled > SCALE_MAX) {
+        scaled = SCALE_MAX;
+    }
+    else if (scaled < SCALE_MIN) {
+        scaled = SCALE_MIN;
+    }
+    // Give scaled value to CV
+    PID->CV = scaled;
+}
+#endif
+/*
+Adjust PV of target PID
+*/
+void PID_Process(PID_Handle_t *PID, PID_t adjustment_factor)
 {
     PID->PV += PID->CV * adjustment_factor;
-Zero PTerm, ITerm
+}
+/*
+Zero PWeight, IWeight
 */
-void pidL_ClearTerms(struct pidL_Config * PID) {
-  PID->PTerm = 0.0;
-  PID->ITerm = 0.0;
+void PID_ClearWeights(PID_Handle_t * PID) {
+    PID->PWeight = 0.0;
+    PID->IWeight = 0.0;
+    PID->IWeight = 0.0;
 }

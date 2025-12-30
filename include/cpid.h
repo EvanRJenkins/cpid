@@ -10,9 +10,9 @@ If USE_FLOAT defined in config.h,
 use float instead of double
 */
 #ifdef USE_FLOAT
-  typedef float pidL_t;
+  typedef float PID_t;
 #else
-  typedef double pidL_t;
+  typedef double PID_t;
 #endif
 /*
 Constant definitions for math.
@@ -24,43 +24,61 @@ Change at your own risk!
 /*
 Config struct for pid lib
 */
-struct pidL_Config {
+#ifdef ENABLE_DERIVATIVE
+typedef struct {
   // Setpoint and process value
-  pidL_t SP, PV;
+  PID_t SP, PV;
   // Control variable (unscaled output)
-  pidL_t CV;
+  PID_t CV;
   // Proportional and Integral gains
-  // NOTE: Consider removing const
-  const pidL_t PGain, IGain;
+  PID_t PGain, IGain, DGain;
   // Proportional and integral terms
-  pidL_t PTerm, ITerm;
-};
+  PID_t PWeight, IWeight, DWeight;
+  // Previous error for derivative
+  PID_t PreviousError;
+} PID_Handle_t;
+#else
+ typedef struct {
+ // Setpoint and process value
+ PID_t SP, PV;
+ // Control variable (unscaled output)
+ PID_t CV;
+ // Proportional and Integral gains
+ PID_t PGain, IGain;
+ // Proportional and integral terms
+ PID_t PWeight, IWeight;
+ } PID_Handle_t;
+#endif
 /*
 Update SP at tarGet PID
 */
-void pidL_SetSP(struct pidL_Config *PID, pidL_t new_SP);
+void PID_SetSP(PID_Handle_t *PID, PID_t new_SP);
 /*
 Update PV at tarGet PID
 */
-void pidL_SetPV(struct pidL_Config *PID, pidL_t new_PV);
+void PID_SetPV(PID_Handle_t *PID, PID_t new_PV);
 /*
 Calculate error
 */
-pidL_t pidL_GetError(struct pidL_Config *PID);
+PID_t PID_GetError(PID_Handle_t *PID);
 /*
-Calculate P term
+Calculate P weight
 */
-void pidL_GetP(struct pidL_Config *PID, pidL_t error);
+void PID_GetPWeight(PID_Handle_t *PID, PID_t error);
 /*
-Calculate I term
+Calculate I weight
 */
-void pidL_GetI(struct pidL_Config *PID, pidL_t error);
+void PID_GetIWeight(PID_Handle_t *PID, PID_t error);
+/*
+Calculate D weight
+*/
+void PID_GetDWeight(PID_Handle_t *PID, PID_t new_error);
 /*
 Update tarGet pid
 */
-void pidL_Update(struct pidL_Config *PID);
-//
-void pidL_Adjust(struct pidL_Config *PID, pidL_t adjustment_factor);
+void PID_Update(PID_Handle_t *PID);
+// Input -> PID Control System -> Output
+void PID_Process(PID_Handle_t *PID, PID_t adjustment_factor);
 
-void pidL_ClearTerms(struct pidL_Config *PID);
+void PID_ClearTerms(PID_Handle_t *PID);
 #endif
